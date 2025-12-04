@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal GRIN - Gestão Hospitalar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Paleta Hospitalar Profissional */
+            --primary-color: #0284c7; /* Azul Clínico */
+            --secondary-color: #0ea5e9; /* Azul Claro */
+            --accent-color: #0f172a; /* Azul Escuro/Cinza (Texto/Fundo Forte) */
+            --bg-color: #f1f5f9; /* Cinza Gelo (Fundo da página) */
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Compacto e Moderno */
+        header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand i {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .brand-text h1 {
+            font-size: 1.4rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Sistema de Navegação (Filtros) */
+        .nav-container {
+            background: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .filters {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px; /* Para scrollbar não colar */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: var(--transition);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn:hover {
+            background: #f8fafc;
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.3);
+        }
+
+        /* Grid de Conteúdo */
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* Card Design Estilo "SaaS" */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+            position: relative;
+            display: flex; /* Flex para forçar altura igual */
+            flex-direction: column;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--secondary-color);
+        }
+
+        /* Barra colorida no topo do card baseada no tipo */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            right: 24px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 0 0 4px 4px;
+            opacity: 0.7;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            background: #f0f9ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            transition: var(--transition);
+        }
+
+        .card:hover .icon-box {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .card-badge {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--text-light);
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.6;
+            flex-grow: 1; /* Empurra o footer do card para baixo */
+            margin-bottom: 20px;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            gap: 6px;
+        }
+
+        .card-footer i {
+            transition: transform 0.2s;
+        }
+
+        .card:hover .card-footer i {
+            transform: translateX(4px);
+        }
+
+        /* Footer da Página */
+        .main-footer {
+            background: white;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: auto;
+        }
+
+        .main-footer p {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Animação */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .nav-container {
+                padding: 10px 15px;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header>
+        <div class="header-content">
+            <div class="brand">
+                <i class="fas fa-hospital-user"></i>
+                <div class="brand-text">
+                    <h1>Portal GRIN</h1>
+                    <p>Gerência de Relacionamento e Internação</p>
+                </div>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-light);">
+                <i class="far fa-calendar-alt"></i> <span id="current-date"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegação / Filtros -->
+    <div class="nav-container">
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterCards('all')">
+                <i class="fas fa-th-large"></i> Todos
+            </button>
+            <button class="filter-btn" onclick="filterCards('dashboard')">
+                <i class="fas fa-chart-line"></i> Dashboards
+            </button>
+            <button class="filter-btn" onclick="filterCards('rh')">
+                <i class="fas fa-users"></i> RH & Escalas
+            </button>
+            <button class="filter-btn" onclick="filterCards('operacional')">
+                <i class="fas fa-tasks"></i> Operacional
+            </button>
+            <button class="filter-btn" onclick="filterCards('contatos')">
+                <i class="fas fa-address-book"></i> Contatos
+            </button>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-container">
+        <div class="cards-grid" id="cardsGrid">
+
+            <!-- Dashboard Contrarreferência -->
+            <a href="https://luancordella.github.io/dashboardcontrarreferencia/" target="_blank" class="card" data-category="dashboard">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-chart-pie"></i></div>
+                    <span class="card-badge">Analytics</span>
+                </div>
+                <h3 class="card-title">Dashboard Contrarreferência</h3>
+                <p class="card-desc">Monitoramento em tempo real de indicadores e métricas de contrarreferências médicas.</p>
+                <div class="card-footer">Visualizar indicadores <i class="fas fa-arrow-right"></i></div>
+            </a>
+
+            <!-- NOVO: Plantões Realizados - Equipe de Transporte -->
+            <a href="https://docs.google.com/spreadsheets/d/14_vuIeSaHdaL0_jHe1OyEqAs8m9P0aliFcH5dlOewSo/edit?gid=1888515075#gid=1888515075" target="_blank" class="card" data-category="rh">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-ambulance"></i></div>
+                    <span class="card-badge">Escala</span>
+                </div>
+                <h3 class="card-title">Plantões de Transporte</h3>
+                <p class="card-desc">Controle de plantões realizados pela equipe de transporte. Registro de horas e turnos.</p>
+                <div class="card-footer">Acessar planilha <i class="fas fa-arrow-right"></i></div>
+            </a>
+
+            <!-- NOVO: Pedidos de Folga - NIR -->
+            <a href="https://docs.google.com/spreadsheets/d/1KdxVYMxsPSWi6gBlITEAxIy_-9vFRS1B3xkSBSN2TUU/edit?gid=295221365#gid=295221365" target="_blank" class="card" data-category="rh">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
+                    <span class="card-badge">Solicitações</span>
+                </div>
+                <h3 class="card-title">Folgas Enfermeiros NIR</h3>
+                <p class="card-desc">Sistema de solicitação e visualização de folgas aprovadas para a equipe de enfermagem.</p>
+                <div class="card-footer">Gerenciar folgas <i class="fas fa-arrow-right"></i></div>
+            </a>
+
+            <!-- Painel de Funcionários -->
+            <a href="https://script.google.com/macros/s/AKfycby74WP0-YW96P858yurnwQyPdtsiOQq_afWgL5DQe4TCbUfDcfo3bq3XPZhI4sqzDGeFg/exec" target="_blank" class="card" data-category="rh">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-id-card"></i></div>
+                    <span class="card-badge">Gestão de Pessoas</span>
+                </div>
+                <h3 class="card-title">Painel de Funcionários</h3>
+                <p class="card-desc">Cadastro centralizado, gestão de contratos e dados da equipe hospitalar.</p>
+                <div class="card-footer">Acessar sistema <i class="fas fa-arrow-right"></i></div>
+            </a>
+
+            <!-- Controle Contrarreferência -->
+            <a href="https://docs.google.com/spreadsheets/d/1wWvnaVbXlvMLs3BAS6_ul7v2GEAxfciCaZF8YGUPQV8/edit?gid=619183559#gid=619183559" target="_blank" class="card" data-category="operacional">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-file-medical"></i></div>
+                    <span class="card-badge">Controle</span>
+                </div>
+                <h3 class="card-title">Controle Operacional</h3>
+                <p class="card-desc">Planilha mestre para registro diário e acompanhamento detalhado de processos.</p>
+                <div class="card-footer">Abrir planilha <i class="fas fa-arrow-right"></i></div>
+            </a>
+
+            <!-- Calculadora -->
+            <a href="https://docs.google.com/spreadsheets/d/1ZddOFBq_boWQOSubqLpfDIJcb62wutEAmfpo4LcSOqk/edit?gid=0#gid=0" target="_blank" class="card" data-category="operacional">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-calculator"></i></div>
+                    <span class="card-badge">Ferramenta</span>
+                </div>
+                <h3 class="card-title">Calculadora Procedimentos</h3>
+                <p class="card-desc">Cálculo automatizado para procedimentos (A2 e A8) com tabelas atualizadas.</p>
+                <div class="card-footer">Calcular agora <i class="fas fa-arrow-right"></i></div>
+            </a>
+
+            <!-- Diretório Ramais -->
+            <a href="https://luancordella.github.io/ramais/" target="_blank" class="card" data-category="contatos">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-phone-alt"></i></div>
+                    <span class="card-badge">Comunicação</span>
+                </div>
+                <h3 class="card-title">Lista de Ramais</h3>
+                <p class="card-desc">Diretório telefônico interno organizado por setor, andar e departamento.</p>
+                <div class="card-footer">Consultar <i class="fas fa-arrow-right"></i></div>
+            </a>
+
+            <!-- Corpo Clínico -->
+            <a href="https://luancordella.github.io/doct/" target="_blank" class="card" data-category="contatos">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-user-md"></i></div>
+                    <span class="card-badge">Médicos</span>
+                </div>
+                <h3 class="card-title">Corpo Clínico</h3>
+                <p class="card-desc">Informações de contato, especialidades e escalas dos médicos.</p>
+                <div class="card-footer">Pesquisar médico <i class="fas fa-arrow-right"></i></div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="main-footer">
+        <p><i class="fas fa-shield-alt"></i> Ambiente Seguro | Acesso Restrito</p>
+    </footer>
+
+    <script>
+        // Data Atual no Header
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR', dateOptions);
+
+        // Sistema de Filtros
+        function filterCards(category) {
+            const cards = document.querySelectorAll('.card');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            // Atualizar estado visual dos botões
+            buttons.forEach(btn => {
+                if(btn.textContent.toLowerCase().includes(category === 'all' ? 'todos' : category) || 
+                   (category === 'rh' && btn.textContent.includes('RH')) ||
+                   (category === 'operacional' && btn.textContent.includes('Operacional')) ||
+                   (category === 'dashboard' && btn.textContent.includes('Dashboards')) ||
+                   (category === 'contatos' && btn.textContent.includes('Contatos'))
+                ) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Filtrar Cards com Animação
+            cards.forEach(card => {
+                card.style.display = 'none'; // Esconde primeiro
+                card.style.opacity = '0';
+                
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'flex';
+                    // Pequeno delay para permitir a transição CSS funcionar se quiséssemos algo mais complexo, 
+                    // mas aqui usamos animation no CSS
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                    }, 50);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
